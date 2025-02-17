@@ -1,0 +1,6 @@
+[package]
+name = "Rust-Programming-Assignments3"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]

@@ -42,11 +42,3 @@ cargo run
 ```
 
 The application will start fetching and saving the pricing data every 10 seconds. The data will be saved in the respective files for Bitcoin, Ethereum, and the S&P 500 index.
-
-## Contributing
-
-If you would like to contribute to this project, feel free to submit a pull request or open an issue for discussion.
-
-## License
-
-This project is licensed under the MIT License. See the LICENSE file for more details.

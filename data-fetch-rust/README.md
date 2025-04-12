@@ -7,14 +7,7 @@ This project is a Rust application that periodically fetches and records the pri
 ```
 data-fetch-rust
 ├── src
-│   ├── main.rs          # Entry point of the application
-│   ├── assets
-│   │   ├── bitcoin.rs   # Defines the Bitcoin struct and its methods
-│   │   ├── ethereum.rs   # Defines the Ethereum struct and its methods
-│   │   └── sp500.rs      # Defines the SP500 struct and its methods
-│   ├── pricing.rs       # Defines the Pricing trait
-│   ├── fetcher.rs       # Handles HTTP requests to fetch pricing data
-│   └── utils.rs         # Utility functions for data formatting and file operations
+│   ├── main.rs          # Entry point of the application as well as location of structs
 ├── Cargo.toml           # Project configuration and dependencies
 └── README.md            # Documentation for the project
 ```
@@ -23,9 +16,10 @@ data-fetch-rust
 
 This project uses the following dependencies:
 
-- `ureq`: For making HTTP requests to fetch pricing data.
-- `serde`: For parsing JSON data.
-
+ - ureq = { version = "2.6.1", features = ["json"] }
+ - serde = { version = "1.0", features = ["derive"] }
+ - serde_json = "1.0"
+   
 ## Setup
 
 1. Ensure you have Rust installed on your machine. You can install it from [rust-lang.org](https://www.rust-lang.org/).

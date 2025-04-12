@@ -3,18 +3,14 @@ use std::fs::OpenOptions;
 use std::io::Write;
 use ureq;
 
-const BTC_API_URL: &str = "https://api.coindesk.com/v1/bpi/currentprice/BTC.json";
-const ETH_API_URL: &str = "https://api.coindesk.com/v1/bpi/currentprice/ETH.json";
-const SP500_API_URL: &str = "https://api.example.com/sp500"; // Replace with actual S&P 500 API
+const COINGECKO_API_URL: &str = "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin%2Cethereum&vs_currencies=usd";
+const SNP500_URL: &str = "https://query1.finance.yahoo.com/v8/finance/chart/%5EGSPC?interval=1m";
 
 
 pub trait Pricing {
     fn fetch_price(&mut self) -> Result<(), Box<dyn std::error::Error>>;
     fn save_to_file(&self) -> Result<(), std::io::Error>;
-}
-
-pub fn format_price(price: f64) -> String {
-    format!("{:.2}", price)
+    fn get_price(&self) -> f64;
 }
 
 
@@ -31,17 +27,20 @@ impl Bitcoin {
 
 impl Pricing for Bitcoin {
     fn fetch_price(&mut self) -> Result<(), Box<dyn std::error::Error>> {
-        let response: serde_json::Value = ureq::get(BTC_API_URL)
+        // Fetch Bitcoin price from the CoinDesk API
+        // Replace with actual API call
+        let response: serde_json::Value = ureq::get(COINGECKO_API_URL)
             .call()?
             .into_json()?;
         
-        self.price = response["bpi"]["USD"]["rate_float"]
+        self.price = response["bitcoin"]["usd"]
         .as_f64()
         .ok_or("Failed to parse price")?;
         Ok(())
     }
 
     fn save_to_file(&self) -> Result<(), std::io::Error> {
+        // Use the same file path as Ethereum for simplicity
         let file_path = "/workspaces/rustspring2025/data-fetch-rust/bitcoin_prices.txt";
         // Create the file if it doesn't exist, or append to it if it does
         let mut file = OpenOptions::new()
@@ -50,6 +49,10 @@ impl Pricing for Bitcoin {
             .open(file_path)?;
         writeln!(file, "Bitcoin Price: ${:.2}", self.price)?;
         Ok(())
+    }
+
+    fn get_price(&self) -> f64 {
+        self.price
     }
 }
 
@@ -65,7 +68,9 @@ impl Ethereum {
 
 impl Pricing for Ethereum {
     fn fetch_price(&mut self) -> Result<(), Box<dyn std::error::Error>> {
-        let response: serde_json::Value = ureq::get(ETH_API_URL)
+        // Fetch Ethereum price from a hypothetical API
+        // Replace with actual API call
+        let response: serde_json::Value = ureq::get(COINGECKO_API_URL)
             .call()?
             .into_json()?;
         
@@ -76,6 +81,7 @@ impl Pricing for Ethereum {
     }
 
     fn save_to_file(&self) -> Result<(), std::io::Error> {
+        // Use the same file path as Bitcoin for simplicity
         let file_path = "/workspaces/rustspring2025/data-fetch-rust/ethereum_prices.txt";
         // Create the file if it doesn't exist, or append to it if it does
         let mut file = OpenOptions::new()
@@ -85,6 +91,10 @@ impl Pricing for Ethereum {
         
         writeln!(file, "Ethereum Price: ${}", self.price)?;
         Ok(())
+    }
+
+    fn get_price(&self) -> f64 {
+        self.price
     }
 }
 
@@ -99,14 +109,16 @@ impl SP500 {
 }
 
 impl Pricing for SP500 {
+    // Fetch the S&P 500 price from a hypothetical API
+    // Replace with actual API call
     fn fetch_price(&mut self) -> Result<(), Box<dyn std::error::Error>> {
-        let response: serde_json::Value = ureq::get("https://api.example.com/sp500")
+        let response: serde_json::Value = ureq::get(SNP500_URL)
             .call()?
             .into_json()?;
         
-        self.price = response["price"]
-        .as_f64()
-        .ok_or("Invalid price format")?;
+        self.price = response["chart"]["result"][0]["meta"]["regularMarketPrice"]
+            .as_f64()
+            .ok_or("Failed to parse price")?;
         Ok(())
     }
 
@@ -120,6 +132,10 @@ impl Pricing for SP500 {
         
         writeln!(file, "S&P 500 Price: {}", self.price)?;
         Ok(())
+    }
+
+    fn get_price(&self) -> f64 {
+        self.price
     }
 }
 
@@ -136,6 +152,9 @@ fn main() {
                 eprintln!("Error fetching price: {}", e);
                 continue;
             }
+            // Print the fetched price
+            println!("Fetched price: ${:.2}", asset.get_price());
+
             if let Err(e) = asset.save_to_file() {
                 eprintln!("Error saving to file: {}", e);
             }
